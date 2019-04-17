@@ -194,7 +194,25 @@ public class Sample {
         cities.add("Cleveland");
         
         states.add("OH");
-        labs.add30uniqueCustomers(fnames, lnames, newAddresses, cities, states);
+        
+        /*
+        labs.add30uniqueCustomers(fnames, lnames, newAddresses, cities, states); //step 3
+        */
+        List<String> ordersdesc = new ArrayList();
+        ordersdesc.add("Ipod");
+        ordersdesc.add("Iphone");
+        ordersdesc.add("Hoody");
+        ordersdesc.add("Nfl jersey");
+        ordersdesc.add("Baseball Cap");
+        ordersdesc.add("Levi Jeans");
+        ordersdesc.add("Sunglasses");
+        ordersdesc.add("Video game");
+        ordersdesc.add("BlueRay movie");
+        ordersdesc.add("Power Drill");
+        ordersdesc.add("Laptop");
+        
+        labs.insrt2Ordersfor15Customers(ordersdesc);
+        
         
         
 

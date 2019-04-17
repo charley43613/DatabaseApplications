@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class Lab {
     private Connection dataSource;
     private static Logger logger = LoggerFactory.getLogger(Sample.class);
+    Random rand = new Random();
     Lab(Connection dataSource){
         this.dataSource = dataSource;
         
@@ -491,7 +492,7 @@ where Accounts.AccountType = "Checking" and Accounts.Balance >= 0*/
     //final project start
     
     public void add30uniqueCustomers(List<String> fnames, List<String> lnames, List<String> addresses,  List<String> cities, List<String> states){
-        Random rand = new Random();
+        
 
                 for(int i = 0; i <=29; i++){
                     String afname = fnames.get(rand.nextInt(fnames.size()));
@@ -529,6 +530,50 @@ where Accounts.AccountType = "Checking" and Accounts.Balance >= 0*/
                 System.out.println("Added 30 new unique Customers");
                 
     }
+    
+    public void insrt2Ordersfor15Customers(List<String> ordersdesc){
+        List<String> integers = new ArrayList();
+        for (int j= 1; j<=15; j++){
+            integers.add(Integer.toString(j));
+        }
+        for (int h= 1; h<=15; h++){
+            String acustomernumber = integers.get(rand.nextInt(integers.size()));
+            integers.remove(acustomernumber);
+
+            for(int i= 1; i<=2;  i++){
+                        String aorderdesc = ordersdesc.get(rand.nextInt(ordersdesc.size()));
+ 
+                        System.out.println( acustomernumber  + "    " + aorderdesc);
+
+
+                                    String sql1 = "Insert into Ordertbl " +
+                                                    " (CustomerNo, OrderDesc)" +
+                                                    " Values ((?), (?))";
+                        
+                        
+                        try (PreparedStatement ps = dataSource.prepareStatement(sql1)){
+                            ps.setString(1, acustomernumber);
+                            ps.setString(2, aorderdesc);
+
+                            ps.executeUpdate();
+
+
+
+                        }
+                        catch(SQLException e){
+                            logger.error("SQL Syntax Error: " + e.toString());
+                        }
+                        
+            }
+
+
+                    
+                 
+            
+            
+        }
+    }
+
     
     
     
