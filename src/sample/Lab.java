@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import org.apache.log4j.BasicConfigurator;
@@ -573,11 +574,632 @@ where Accounts.AccountType = "Checking" and Accounts.Balance >= 0*/
             
         }
     }
+    public void add15InvCodes(List<Integer> invCodes, List<String> descs, List<Integer> quants, List<Double> prices){
+        
+        for (int i = 0; i <= 14; i++){
+            int invCode = invCodes.get(i);
+            String desc = descs.get(i);
+            int quant = quants.get(i);
+            double price = prices.get(i);
+
+                                    String sql1 = " INSERT INTO InventoryCode (InventoryCode, Description, QtyOnHand, PricePerLb) " +
+                                                    "	VALUES ((?),(?),(?),(?));";
+                        
+                        
+                        try (PreparedStatement ps = dataSource.prepareStatement(sql1)){
+                            ps.setInt(1, invCode);
+                            ps.setString(2, desc);
+                            ps.setInt(3, quant);
+                            ps.setDouble(4, price);
+
+                            ps.executeUpdate();
+
+                        }
+                        catch(SQLException e){
+                            logger.error("SQL Syntax Error: " + e.toString());
+                        }
+
+        }
+    }
+    
+    
+    
+    
+    public void add5orderDetailsfor2OrdersofCstmrs(List<Integer> inventoryCodes){
+        
+        for (int i = 1; i <= 15; i++){ //for the 15 customers that ordered
+            
+            List<Integer> orderNos = new ArrayList();//maintain orderNos for the customer
+            int customerNo = i;
+            String sql1 = " SELECT * FROM charles.Ordertbl " +
+                                                    "where CustomerNo = (?)";
+                                    
+                try (PreparedStatement ps = dataSource.prepareStatement(sql1)){//prepare the statement
+                    
+                    ps.setInt(1, customerNo);
+
+                    try(ResultSet rs = ps.executeQuery()){ //execute the select statement to obtain order Numbers
+                        while(rs.next()){
+                            int orderNo = rs.getInt("OrderNo");
+                            System.out.println("Obtained OrderNo: " + orderNo);
+                            orderNos.add(orderNo);
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                        }
+                    }
+
+                }
+                catch(SQLException e){
+                    logger.error("SQL Syntax Error: " + e.toString());
+                }
+                for(int orderNo: orderNos){ //for 2 orders(descriptions/company providing materials in this case)
+
+                    for(int j = 0; j<=4; j++){//5 entries, different inventory codes and quantities
+                        int inventoryCode = inventoryCodes.get(rand.nextInt(inventoryCodes.size()));
+                        int randQuantity = new Random().nextInt(10 + 1)  + 10;//value between 10 and 20
+                    
+                        String sql2 = "Insert into OrderDtl  " +
+                                        "  (OrderNo, InventoryCode, QtyOrdered, QtyShipped)" +
+                                        "  Values((?), (?), (?), (?))";
+
+                            try (PreparedStatement ps = dataSource.prepareStatement(sql2)){
+                                ps.setInt(1, orderNo);
+                                ps.setInt(2, inventoryCode);
+                                ps.setInt(3, randQuantity);
+                                ps.setInt(4, randQuantity);
+
+                                ps.executeUpdate();
+
+                            }
+                            catch(SQLException e){
+                                logger.error("SQL Syntax Error: " + e.toString());
+                            }
+                    }
+
+                    
+                }
+                                    
+                        
+
+
+            }
+        
+        
+        
+        
+        
+        
+        
+    }
+    
+    
+    public HashMap<Integer, Double> hghstToLwstCst( ){
+                String sql1 = "SELECT InventoryCode, PricePerLb FROM InventoryCode  " +
+                                "order by PricePerLb desc"; //uses this select to generate insert
+                HashMap<Integer, Double> codeAndPrice = new HashMap<>();
+                try (PreparedStatement ps = dataSource.prepareStatement(sql1)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            int code = rs.getInt("InventoryCode");
+                            double price = rs.getDouble("PricePerLb");
+                            codeAndPrice.put(code, price); //add to hashmap
+                            System.out.println("InventoryCode: " + code +  "PricePerLb: " +price);
+                            
+                            
+                            
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    
+
+
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+                return codeAndPrice;
+
+
+            
+    }
+    
+        public void hghstToLwstOnHand(){
+                String sql1 = "SELECT InventoryCode, QtyOnHand FROM InventoryCode " +
+                                    " Order by QtyOnHand Desc"; //uses this select to generate insert
+
+                try (PreparedStatement ps = dataSource.prepareStatement(sql1)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            int code = rs.getInt("InventoryCode");
+                            int qty = rs.getInt("QtyOnHand");
+
+                            System.out.println("InventoryCode: " + code +  "  QtyOnHand: " +qty);
+                            
+                            
+                            
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    
+
+
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+         
+
+
+            
+    }           
+        public void costOfAllInventories(){
+     
+                            String sql1 =
+                                            "         select  Sum(QtyOnHand*PricePerLb) as Result from InventoryCode " +                      
+                                                        " order by Result Desc"; //uses this select to generate insert
+
+                try (PreparedStatement ps = dataSource.prepareStatement(sql1)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            double ttlinvCost = rs.getDouble("Result");
+                            System.out.println("\n\n");
+                            System.out.println("  COST OF ALL INVENTORIES: " +ttlinvCost);
+      
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    
+
+
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+        }
+        
+        public void orderByInventoryCost(){
+            
+            
+            
+            
+                            String sql1 =
+                                            "  select  InventoryCode, Sum(QtyOnHand*PricePerLb) as Result from InventoryCode  " +
+                                            "  group by InventoryCode" +
+                                            "  order by Result Desc"; //uses this select to generate insert
+
+                try (PreparedStatement ps = dataSource.prepareStatement(sql1)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            int code = rs.getInt("InventoryCode");
+                            double ttlinvCost = rs.getDouble("Result");
+
+                            System.out.println("InventoryCode: " + code +  "  CostofInventory: " +ttlinvCost);
+                            
+                            
+                            
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    
+
+
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+            
+
+        }
+        
+        public void cstmrsThatdidntOrder(){
+
+                            String sql1 =
+                                            "  SELECT FName, LName FROM Customer  " +
+                                            "  left Join Ordertbl on  Customer.CustomerNo  = Ordertbl.CustomerNo " +
+                                            "  where isnull(OrderNo)  ";
+                            //uses this select to generate insert
+                System.out.println(" CUSTOMERS WHO DIDN'T ORDER:");
+                try (PreparedStatement ps = dataSource.prepareStatement(sql1)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            String fnname = rs.getString("FName");
+                            String lname = rs.getString("LName");
+                            
+
+                            System.out.println("FName: " + fnname +  "  LName: " +lname);
+                            
+                            
+                            
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    
+
+
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+            
+
+        }
+        public void crtCstmrWithOrdr(){
+            
+
+            String sql1 = " insert into Customer " +
+                             "(Fname, Lname, Address, City, State)" +
+                             "Values('Merl', 'Creps', '8868 County Rd D', 'Delta', 'OH')";               
+                try (PreparedStatement ps = dataSource.prepareStatement(sql1)){//prepare the statement
+                    ps.executeUpdate();
+
+                }
+                catch(SQLException e){
+                    logger.error("SQL Syntax Error: " + e.toString());
+                }
+                
+                
+          String sql2 = " select CustomerNo from Customer  " +
+                        "  where FName = 'Merl' and Lname = 'Creps'";
+           int customerNo = -1;
+           
+
+           
+           
+           try (PreparedStatement ps = dataSource.prepareStatement(sql2)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            customerNo = rs.getInt("CustomerNo");
+
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+
+                
+            String sql3 = " Insert into Ordertbl  " +
+                            "  (CustomerNo, OrderDesc)" +
+                            "  Values((?), 'Builders FirstSource materials')";               
+                try (PreparedStatement ps = dataSource.prepareStatement(sql3)){//prepare the statement
+                    ps.setInt(1, customerNo);
+                    ps.executeUpdate();
+
+                }
+                catch(SQLException e){
+                    logger.error("SQL Syntax Error: " + e.toString());
+                }
+                
+            String sql4 = " Insert into OrderDtl" +
+                    "  (OrderNo, InventoryCode, QtyOrdered, QtyShipped)" +
+                    " Values((SELECT Max(OrderNo)" +
+                            "  where CustomerNo = (?) limit 1)," +
+                    " 1020, 105, 105)";               
+                try (PreparedStatement ps = dataSource.prepareStatement(sql4)){//prepare the statement
+                    ps.setInt(1, customerNo);
+                    ps.executeUpdate();
+
+                }
+                catch(SQLException e){
+                    logger.error("SQL Syntax Error: " + e.toString());
+                }
+              System.out.println("\nCustomer with order, and order detail completed");
+            
+        }
+        
+        
+        public void descOfHighestPrice(){
+            
+ 
+ 
+             String sql4 = "select  InventoryCode, Description, Sum(QtyOnHand*PricePerLb) as Result from InventoryCode  " +
+                            " group by InventoryCode  " +
+                            " order by Result Desc limit 1 ";               
+                                   try (PreparedStatement ps = dataSource.prepareStatement(sql4)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            int code = rs.getInt("InventoryCode");
+                            String desc = rs.getString("Description");
+                            double ttlinvCost = rs.getDouble("Result");
+
+                            System.out.println("InventoryCode: " + code + "  Description: " + desc + "  CostofInventory: " +ttlinvCost);
+                            
+                            
+                            
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    
+
+
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+            
+        }
+        public void updatelbsby100000but6100(){
+            
+            String sql2 = "             UPDATE InventoryCode " +
+                                            "  SET" +
+                                            "   QtyOnHand = QtyOnHand+100000" +
+                                            "   WHERE InventoryCode != 6100;";
+
+
+                try (PreparedStatement ps = dataSource.prepareStatement(sql2)){//prepare the statement
+                    ps.executeUpdate();
+
+                }
+                catch(SQLException e){
+                    logger.error("SQL Syntax Error: " + e.toString());
+                }
+                
+
+        }
+        
+        public void oneOrderand5detailsforMerl(List<Integer> invCodesList){
+            
+            
+                      String sql2 = " select CustomerNo from Customer  " +
+                        "  where FName = 'Merl' and Lname = 'Creps'";
+           int customerNo = -1;
+           
+
+           
+           
+           try (PreparedStatement ps = dataSource.prepareStatement(sql2)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            customerNo = rs.getInt("CustomerNo");
+
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+
+                
+            String sql3 = " Insert into Ordertbl  " +
+                            "  (CustomerNo, OrderDesc)" +
+                            "  Values((?), 'Builders FirstSource materials')";               
+                try (PreparedStatement ps = dataSource.prepareStatement(sql3)){//prepare the statement
+                    ps.setInt(1, customerNo);
+                    ps.executeUpdate();
+
+                }
+                catch(SQLException e){
+                    logger.error("SQL Syntax Error: " + e.toString());
+                }
+                
+                
+                
+                for(int i = 0; i<=4; i++){
+                    int invCode = invCodesList.get(rand.nextInt(invCodesList.size()));
+                
+                    String sql4 = " Insert into OrderDtl" +//grabs most recent order
+                            "  (OrderNo, InventoryCode, QtyOrdered, QtyShipped)" +
+                            " Values(SELECT Max(OrderNo)" +
+                            "  where CustomerNo = (?) limit 1), (?), 825, 825)";               
+                        try (PreparedStatement ps = dataSource.prepareStatement(sql4)){//prepare the statement
+                            ps.setInt(1, customerNo);
+                            ps.setInt(2, invCode);
+                            ps.executeUpdate();
+
+                        }
+                        catch(SQLException e){
+                            logger.error("SQL Syntax Error: " + e.toString());
+                        }
+                      System.out.println("\nCustomer with order, and order detail completed");
+                }
+        }
+        public void updatePricebasedonCode(){
+            
+            
+                                String sql4 = "  UPDATE InventoryCode  " +
+                                                "  SET" +
+                                                "  PricePerLb = (PricePerLb+.002 )" +
+                                                "  WHERE InventoryCode >= 4000 and InventoryCode <= 4099";               
+                        try (PreparedStatement ps = dataSource.prepareStatement(sql4)){//prepare the statement
+
+                            ps.executeUpdate();
+
+                        }
+                        catch(SQLException e){
+                            logger.error("SQL Syntax Error: " + e.toString());
+                        }
+                      System.out.println("\nCustomer with order, and order detail completed");
+                
+        
+        
+                  String sql1 = "  UPDATE InventoryCode  " +
+                                                "  SET" +
+                                                "  PricePerLb = (PricePerLb+.05 )" +
+                                                "  WHERE Not InventoryCode >= 4000 and InventoryCode <= 4099";               
+                        try (PreparedStatement ps = dataSource.prepareStatement(sql1)){//prepare the statement
+
+                            ps.executeUpdate();
+
+                        }
+                        catch(SQLException e){
+                            logger.error("SQL Syntax Error: " + e.toString());
+                        }
+                      System.out.println("\nCustomer with order, and order detail completed");
+                }
+        public void showAuditTable(){
+            
+            
+                         String sql4 = "SELECT * FROM Audit ";               
+                  try (PreparedStatement ps = dataSource.prepareStatement(sql4)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){
+                            int auditId = rs.getInt("AuditId");
+                            String tname = rs.getString("TableName");
+                            String op = rs.getString("Operation");
+                            String fld = rs.getString("Field");
+                            String oval = rs.getString("OValue");
+                            String nval = rs.getString("NValue");
+                            String date = rs.getString("LastUpdated");
+
+                            System.out.println("AuditId: " + auditId + "  TableName: " + tname + "  Operation: " +op 
+                                    + "  Field: " +fld + "  OValue: " +oval +  "  NValue: " +nval +"  LastUpdated: " +date);
+                            
+                            
+                            
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    
+
+
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+            
+        }
+        
+        //final proj end
+        
+        
+        
+        
+        
+       //final exam start
+   public void selectInventoryCstView() {
+
+            String sql = "select * from InventoryCost";
+            try(PreparedStatement ps = dataSource.prepareStatement(sql)){
+                    try(ResultSet rs = ps.executeQuery()){
+                            while(rs.next()) {
+                                    System.out.println("Inventory Code: " + rs.getInt("InventoryCode") + " Desc: "+ rs.getString("Description")+"  Inventory Cost: "+ rs.getDouble("Result"));
+                            }
+                    }
+
+            }
+            catch(SQLException e) {
+                    System.out.println("SQL Exception: " + e.getLocalizedMessage());
+            }
+
+    }
+   
+   public void pplbGrtrthanX(double pplb){//sql proc called by java proc
+                   String sql = "{ Call pplbGrtrthanXandhavebeenOrdered(?) }";
+
+            try(CallableStatement cs = dataSource.prepareCall(sql)){
+                    cs.setDouble(1, pplb);
+                    try(ResultSet rs = cs.executeQuery()){
+                            while(rs.next()){
+                                    System.out.println("InventoryCode: " + rs.getInt("InventoryCode") + "  Description: " + rs.getString("Description")+ "\n");				}
+                    }	
+            }
+            catch(Exception e) {
+                    System.out.println("SQL Error: " + e.getLocalizedMessage());
+            }
+
+
+    }
+   
+   public void getAvgOrdersgrtrThanX(double avgCostConstraint){
+                List<Integer> customerNos = new ArrayList();
+                List<Double> avgCosts = new ArrayList();
+                   
+                         String sql4 = "       select Customer.CustomerNo, avg(OrderDtl.QtyOrdered * InventoryCode.PricePerLb) as OrdersAvg  from Customer\n" +
+                                        "join Ordertbl on Customer.CustomerNo = Ordertbl.CustomerNo\n" +
+                                        "join OrderDtl on Ordertbl.OrderNo = OrderDtl.OrderNo\n" +
+                                        "join InventoryCode on OrderDtl.InventoryCode = InventoryCode.InventoryCode\n" +
+                                        "where not isnull(Customer.CustomerNo)\n" +
+                                        "group by Customer.CustomerNo";               
+                  try (PreparedStatement ps = dataSource.prepareStatement(sql4)){
+                    try(ResultSet rs = ps.executeQuery()){
+                        while(rs.next()){//add to the list given the constraint
+                            int customerNo = rs.getInt("CustomerNo");
+                            double avgCost = rs.getDouble("OrdersAvg");
+                            if (avgCost >= avgCostConstraint){
+                                 customerNos.add(customerNo);
+                                 avgCosts.add(avgCost);
+                                
+                            }
+                           
+                            
+
+                            
+                        }
+                    }
+                    catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                        
+                    }
+                    
+
+
+                           //ALTERNATE logger.debug("rowId: {}, objectRowId: {}", new Object[] {rowId, objectRowId});
+                    }
+                catch(SQLException e){
+                        logger.error("SQL Syntax Error: " + e.toString());
+                }
+                  //print the results of the constraint
+
+                System.out.println("Customers whose average cost of orders are over: "+ avgCostConstraint + "...");
+                for (int i =0; i<customerNos.size(); i++){
+                    System.out.println("CustomerNo: " + customerNos.get(i) + "  OrdersAvg: " + avgCosts.get(i));
+
+                }
+
+   }
+
+
+ }
+        
+
+        
+
+
+
+
+      
+        
+        
 
     
     
     
-}
+
 
     
 

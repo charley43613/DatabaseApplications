@@ -5,20 +5,22 @@
  */
 package sample;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.connection.DatabaseManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
-
+import java.util.Set;
+import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.connection.DatabaseManager;
-import java.sql.SQLException;
-import java.util.Random;
-import org.apache.log4j.BasicConfigurator;
 
 
 /**
@@ -128,7 +130,23 @@ public class Sample {
         Triggers lab end
         */
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         //Final project start
+        
+        //step 1 and 2 done in sql workbench for creating tables/triggers
 
 
         
@@ -195,37 +213,132 @@ public class Sample {
         
         states.add("OH");
         
+        
+        
         /*
         labs.add30uniqueCustomers(fnames, lnames, newAddresses, cities, states); //step 3
         */
         List<String> ordersdesc = new ArrayList();
-        ordersdesc.add("Ipod");
-        ordersdesc.add("Iphone");
-        ordersdesc.add("Hoody");
-        ordersdesc.add("Nfl jersey");
-        ordersdesc.add("Baseball Cap");
-        ordersdesc.add("Levi Jeans");
-        ordersdesc.add("Sunglasses");
-        ordersdesc.add("Video game");
-        ordersdesc.add("BlueRay movie");
-        ordersdesc.add("Power Drill");
-        ordersdesc.add("Laptop");
+        ordersdesc.add("ABC Supply Co. supplies");
+        ordersdesc.add("Builders FirstSource materials");
+        ordersdesc.add("Beacon Roofing Supply materials");
+        ordersdesc.add("BMC Stock Holdings Inc. supplies");
+        ordersdesc.add("Allied Building Products supplies");
+        ordersdesc.add("84 Lumber materials");
+        ordersdesc.add("US LBM Holdings Inc. materials");
+        ordersdesc.add("HD Supply White Cap supplies");
+        ordersdesc.add("BlueLinx Corp. materials");
+        ordersdesc.add("SRS Distribution supplies");
+        ordersdesc.add("XYZ Supply Co. materials");
         
-        labs.insrt2Ordersfor15Customers(ordersdesc);
+        //labs.insrt2Ordersfor15Customers(ordersdesc);//Step 4
+ 
         
+        List<Integer> invCodesList = new ArrayList();
+        List<String> descs = new ArrayList();
+        List<Integer> quants = new ArrayList();
+        List<Double> prices = new ArrayList();
+        invCodesList.add(1010);
+        invCodesList.add(1020);
+        invCodesList.add(1030);
+        invCodesList.add(1040);
+        invCodesList.add(2010);
+        invCodesList.add(2110);
+        invCodesList.add(4010);
+        invCodesList.add(4120);
+        invCodesList.add(4410);
+        invCodesList.add(4500);
+        invCodesList.add(8900);
+        invCodesList.add(6000);
+        invCodesList.add(5500);
+        invCodesList.add(5600);
+        invCodesList.add(6100);
+        descs.add("#1 HMS");
+        descs.add("Carbon Steel");
+        descs.add("Forgings");
+        descs.add("Carbon Steel 1040");
+        descs.add("Brass Truning");
+        descs.add("Copper Chops");
+        descs.add("Aluminum Turning");
+        descs.add("Aluminum Chops");
+        descs.add("Painted Aluminum");
+        descs.add("Aluminum Clippings");
+        descs.add("Waste");
+        descs.add("Fluff");
+        descs.add("Hastelloy");
+        descs.add("Titanium");
+        descs.add("Titanium Clippings");
+        quants.add(50000);
+        quants.add(150000);
+        quants.add(75000);
+        quants.add(65000);
+        quants.add(175000);
+        quants.add(250000);
+        quants.add(250000);
+        quants.add(175000);
+        quants.add(25000);
+        quants.add(275000);
+        quants.add(350000);
+        quants.add(150000);
+        quants.add(175000);
+        quants.add(135400);
+        quants.add(675000);
+        prices.add(.05);
+        prices.add(.075 );
+        prices.add(.065 );
+        prices.add(.055 );
+        prices.add(.120 );
+        prices.add(.10 );
+        prices.add(.25 );
+        prices.add(.225 );
+        prices.add(.075 );
+        prices.add(.110 );
+        prices.add(.01 );
+        prices.add(.025 );
+        prices.add(.45 );
+        prices.add(.475 );
+        prices.add(.376 );
+        /*labs.add15InvCodes(invCodesList, descs, quants, prices);*///Step 5
+        //labs.add5orderDetailsfor2OrdersofCstmrs(invCodesList);//step 6
         
+        HashMap<Integer, Double> hmap = new HashMap<>();
+        //hmap = labs.hghstToLwstCst();//step 7
+        //labs.hghstToLwstOnHand();//step 8
+        List<Double> totalPrice = new ArrayList();
+
         
+        System.out.println("\n \n HIGHEST TO LOWEST ASSETS:");
+        /*labs.costOfAllInventories();//step 9
+        labs.orderByInventoryCost();//step 10
+        labs.cstmrsThatdidntOrder();//step 11
+        */
+        //labs.crtCstmrWithOrdr();//step 12
+        //labs.orderByInventoryCost();//step 13
+        //labs.descOfHighestPrice();//step14
+        //labs.updatelbsby100000but6100();//step15
+        //labs.oneOrderand5detailsforMerl(invCodesList);//step16
+        //labs.updatePricebasedonCode();//step 17
+        //labs.orderByInventoryCost();//repeating step 10
+        //labs.showAuditTable();//step18
+
 
         
         
-        
-        
-        
-        
-        
-        
-        
         //Final project end
+        
+        
+        //final exam start
+        labs.selectInventoryCstView();//step 19
+        labs.pplbGrtrthanX(.02);//step 20 place any number in here for second part of question
+        labs.getAvgOrdersgrtrThanX(100.0);//step 21 (avg cost of orders are small and don't exceed 100, so it won't produce any significant results
+        labs.getAvgOrdersgrtrThanX(3.0);//step 21 with signifcant results (avg cost of orders are small and don't exceed 100, so it won't produce any significant results
+        
+        
+        
+        
+        
+        
+        //final exam end
         
         
         
